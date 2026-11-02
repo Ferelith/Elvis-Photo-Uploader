@@ -1,1 +1,1 @@
-# ElvisPhotoUploader.test
+# Elvis Photo Uploader
