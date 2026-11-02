@@ -1,8 +1,12 @@
 ﻿using System.Diagnostics;
+using System.Text;
+using ElvisPhotoUploader.test;
 using System.Net.NetworkInformation;
 
 // Create a variable to hold the matching window's handle (HWND)
 IntPtr matchedElvisWindowHandle = IntPtr.Zero;
+// Create a variable to hold the upload modal window's handle (HWND)
+IntPtr uploadModalHandle = IntPtr.Zero;
 
 Process[] edgeProcess = Process.GetProcessesByName("msedge");
 
@@ -34,6 +38,36 @@ foreach (Process process in edgeProcess)
 if (matchedElvisWindowHandle == IntPtr.Zero)
 {
     Console.WriteLine("\nNo matching Elvis Vehicle Recovery Edition Window is running.");
+}
+
+Console.WriteLine("Searhing for photo dialogs...");
+
+NativeWindows.EnumWindows((hWnd, lParam) =>
+{
+    StringBuilder titleBuffer = new StringBuilder(512);
+    NativeWindows.GetWindowText(hWnd, titleBuffer, titleBuffer.Capacity);
+
+
+
+    // convert title to string and check if it contains "Webpage Dialog" ignoring capitalization
+    string windowTitle = titleBuffer.ToString();
+
+    if (windowTitle.Contains("ELVIS DotNet", StringComparison.OrdinalIgnoreCase) && windowTitle.Contains("Webpage Dialog", StringComparison.OrdinalIgnoreCase))
+    {
+        Console.WriteLine($"Found a photo dialog window: {windowTitle} (HWND: {hWnd})");
+        uploadModalHandle = hWnd; // Capture the upload modal window's handle (HWND)
+    }
+
+    return true; // Continue enumerating windows
+}, IntPtr.Zero);
+
+if (uploadModalHandle == IntPtr.Zero)
+{
+    Console.WriteLine("No photo dialog window found.");
+}
+else
+{
+    Console.WriteLine($"The upload modal window handle (HWND) is: {uploadModalHandle}");
 }
 
 Console.WriteLine("Press Enter to exit...");
