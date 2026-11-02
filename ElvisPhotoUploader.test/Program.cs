@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
-
-bool isElvisRunning = false;
+using System.Net.NetworkInformation;
 
 // Create a variable to hold the matching window's handle (HWND)
 IntPtr matchedElvisWindowHandle = IntPtr.Zero;
@@ -15,27 +14,27 @@ Console.WriteLine($"Here are the details of the {edgeProcess.Length} msedge proc
 foreach (Process process in edgeProcess)
 {
     // Print the process name, ID, and main window title
-    Console.WriteLine($"Process Name: {process.ProcessName}, Process ID: {process.Id}, Process Main Window Title: {process.MainWindowTitle}");
+    Console.WriteLine($"Process Name: {process.ProcessName}, Process ID: {process.Id}, Process Main Window Title: {(string.IsNullOrEmpty(process.MainWindowTitle) ? "N/A" : process.MainWindowTitle)}");
 }
 
-// Check if there are any msedge processes running with a main window title that contains "Elvis Vehicle Recovery Edition"
+// Loop through the msedge processes again to find a matching window title
 foreach (Process process in edgeProcess)
 {
     process.Refresh(); // Refresh the process information to get the latest data
-    if (process.MainWindowTitle.Contains("Elvis Vehicle Recovery Edition", StringComparison.OrdinalIgnoreCase)) 
+    if (process.MainWindowTitle.Contains("Elvis Vehicle Recovery Edition", StringComparison.OrdinalIgnoreCase) && process.MainWindowHandle != IntPtr.Zero) 
     {
-        isElvisRunning = true;
         matchedElvisWindowHandle = process.MainWindowHandle; // Capture the matching window's handle (HWND)
         Console.WriteLine("\nA matching Elvis Vehicle Recovery Edition Window is running.");
         Console.WriteLine($"The window handle (HWND) is: {matchedElvisWindowHandle}");
         break;
     }
-}
-if (!isElvisRunning)
-{
-    Console.WriteLine("No matching Elvis Vehicle Recovery Edition Window is running.");
-}
 
+}
+// If no matching window was found, inform the user
+if (matchedElvisWindowHandle == IntPtr.Zero)
+{
+    Console.WriteLine("\nNo matching Elvis Vehicle Recovery Edition Window is running.");
+}
 
 Console.WriteLine("Press Enter to exit...");
 Console.ReadLine();
