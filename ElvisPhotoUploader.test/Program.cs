@@ -47,14 +47,11 @@ NativeWindows.EnumWindows((hWnd, lParam) =>
     StringBuilder titleBuffer = new StringBuilder(512);
     NativeWindows.GetWindowText(hWnd, titleBuffer, titleBuffer.Capacity);
 
-
-
     // convert title to string and check if it contains "Webpage Dialog" ignoring capitalization
     string windowTitle = titleBuffer.ToString();
 
     if (windowTitle.Contains("ELVIS DotNet", StringComparison.OrdinalIgnoreCase) && windowTitle.Contains("Webpage Dialog", StringComparison.OrdinalIgnoreCase))
     {
-        Console.WriteLine($"Found a photo dialog window: {windowTitle} (HWND: {hWnd})");
         uploadModalHandle = hWnd; // Capture the upload modal window's handle (HWND)
     }
 
@@ -68,9 +65,19 @@ if (uploadModalHandle == IntPtr.Zero)
 else
 {
     Console.WriteLine($"The upload modal window handle (HWND) is: {uploadModalHandle}");
+
+    NativeWindows.EnumChildWindows(uploadModalHandle, (childHWnd, lParam) =>
+    {
+        StringBuilder childTitleBuffer = new StringBuilder(256);
+        NativeWindows.GetClassName(childHWnd, childTitleBuffer, childTitleBuffer.Capacity);
+        string childClassName = childTitleBuffer.ToString();
+        Console.WriteLine($"Found a child window with class name: {childClassName} and HWND: {childHWnd}");
+        return true; // Continue enumerating child windows
+    }, IntPtr.Zero);
 }
 
-Console.WriteLine("Press Enter to exit...");
+
+
 Console.ReadLine();
 
 
