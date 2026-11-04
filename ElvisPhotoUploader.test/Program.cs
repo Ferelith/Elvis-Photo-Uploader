@@ -3,80 +3,65 @@ using System.Text;
 using ElvisPhotoUploader.test;
 using System.Net.NetworkInformation;
 
-// Create a variable to hold the matching window's handle (HWND)
 IntPtr matchedElvisWindowHandle = IntPtr.Zero;
-// Create a variable to hold the upload modal window's handle (HWND)
 IntPtr uploadModalHandle = IntPtr.Zero;
 
 Process[] edgeProcess = Process.GetProcessesByName("msedge");
 
-Console.WriteLine("Elvis Photo Uploader Test is ready");
-// Display the number of msedge processes running
-Console.WriteLine("There are currently " + edgeProcess.Length + " msedge processes running.\n");
-Console.WriteLine($"Here are the details of the {edgeProcess.Length} msedge processes:\n");
-// Loop through the msedge processes and print their details
-foreach (Process process in edgeProcess)
-{
-    // Print the process name, ID, and main window title
-    Console.WriteLine($"Process Name: {process.ProcessName}, Process ID: {process.Id}, Process Main Window Title: {(string.IsNullOrEmpty(process.MainWindowTitle) ? "N/A" : process.MainWindowTitle)}");
-}
-
 // Loop through the msedge processes again to find a matching window title
 foreach (Process process in edgeProcess)
 {
-    process.Refresh(); // Refresh the process information to get the latest data
+    process.Refresh(); 
     if (process.MainWindowTitle.Contains("Elvis Vehicle Recovery Edition", StringComparison.OrdinalIgnoreCase) && process.MainWindowHandle != IntPtr.Zero) 
     {
-        matchedElvisWindowHandle = process.MainWindowHandle; // Capture the matching window's handle (HWND)
-        Console.WriteLine("\nA matching Elvis Vehicle Recovery Edition Window is running.");
-        Console.WriteLine($"The window handle (HWND) is: {matchedElvisWindowHandle}");
+        matchedElvisWindowHandle = process.MainWindowHandle; 
+        Console.WriteLine($"A matching Elvis Vehicle Recovery Edition Window is running with (HWND): {matchedElvisWindowHandle}");
         break;
     }
-
 }
-// If no matching window was found, inform the user
 if (matchedElvisWindowHandle == IntPtr.Zero)
 {
-    Console.WriteLine("\nNo matching Elvis Vehicle Recovery Edition Window is running.");
+    Console.WriteLine("No matching Elvis Vehicle Recovery Edition Window is running.");
 }
-
-Console.WriteLine("Searhing for photo dialogs...");
-
 NativeWindows.EnumWindows((hWnd, lParam) =>
 {
     StringBuilder titleBuffer = new StringBuilder(512);
     NativeWindows.GetWindowText(hWnd, titleBuffer, titleBuffer.Capacity);
-
-    // convert title to string and check if it contains "Webpage Dialog" ignoring capitalization
     string windowTitle = titleBuffer.ToString();
 
     if (windowTitle.Contains("ELVIS DotNet", StringComparison.OrdinalIgnoreCase) && windowTitle.Contains("Webpage Dialog", StringComparison.OrdinalIgnoreCase))
     {
-        uploadModalHandle = hWnd; // Capture the upload modal window's handle (HWND)
+        uploadModalHandle = hWnd; 
     }
-
-    return true; // Continue enumerating windows
+    return true; 
 }, IntPtr.Zero);
 
 if (uploadModalHandle == IntPtr.Zero)
 {
-    Console.WriteLine("No photo dialog window found.");
+    Console.WriteLine("No photo upload dialog window was found.");
 }
 else
 {
-    Console.WriteLine($"The upload modal window handle (HWND) is: {uploadModalHandle}");
+    Console.WriteLine($"Found the upload photo modal window with handle (HWND): {uploadModalHandle}");
 
     NativeWindows.EnumChildWindows(uploadModalHandle, (childHWnd, lParam) =>
     {
-        StringBuilder childTitleBuffer = new StringBuilder(256);
-        NativeWindows.GetClassName(childHWnd, childTitleBuffer, childTitleBuffer.Capacity);
-        string childClassName = childTitleBuffer.ToString();
-        Console.WriteLine($"Found a child window with class name: {childClassName} and HWND: {childHWnd}");
-        return true; // Continue enumerating child windows
+        StringBuilder classTitleBuffer = new StringBuilder(256);
+        int charactersCopied = NativeWindows.GetClassName(childHWnd, classTitleBuffer, classTitleBuffer.Capacity);
+        string childClassName = classTitleBuffer.ToString();
+
+        if (charactersCopied > 0)
+        {
+            Console.WriteLine($"Found a child window with class name: {childClassName} and HWND: {childHWnd}");
+        }
+        else
+        {
+            Console.WriteLine($"Could not get the class name for child window with HWND: {childHWnd}");
+        }
+
+        return true; 
     }, IntPtr.Zero);
 }
-
-
 
 Console.ReadLine();
 
