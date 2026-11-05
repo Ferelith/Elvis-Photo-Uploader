@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using System.Windows.Automation;
 using ElvisPhotoUploader.test;
-using System.Net.NetworkInformation;
+
 
 IntPtr matchedElvisWindowHandle = IntPtr.Zero;
 IntPtr uploadModalHandle = IntPtr.Zero;
+IntPtr ieServerHandle = IntPtr.Zero;   
 
 Process[] edgeProcess = Process.GetProcessesByName("msedge");
 
@@ -50,19 +52,62 @@ else
         int charactersCopied = NativeWindows.GetClassName(childHWnd, classTitleBuffer, classTitleBuffer.Capacity);
         string childClassName = classTitleBuffer.ToString();
 
-        if (charactersCopied > 0)
+        if (charactersCopied > 0 && childClassName.Equals("Internet Explorer_Server", StringComparison.OrdinalIgnoreCase))
         {
+            ieServerHandle = childHWnd;
             Console.WriteLine($"Found a child window with class name: {childClassName} and HWND: {childHWnd}");
         }
-        else
+        else if (charactersCopied == 0)
         {
             Console.WriteLine($"Could not get the class name for child window with HWND: {childHWnd}");
         }
+        else
+        {
+            Console.WriteLine($"Child window with HWND: {childHWnd} has class name: {childClassName}, which does not match 'Internet Explorer_Server'.");
+        }
 
-        return true; 
+        return true;
     }, IntPtr.Zero);
-}
 
-Console.ReadLine();
+    if (ieServerHandle == IntPtr.Zero)
+    {
+        Console.WriteLine("No Internet Explorer_Server child window was found.");
+    }
+    else
+    {
+        Console.WriteLine($"Found the Internet Explorer_Server child window with handle (HWND): {ieServerHandle}");
+
+        AutomationElement browserElement = AutomationElement.FromHandle(ieServerHandle);
+
+        if (browserElement == null)
+        {
+            Console.WriteLine("No UI Automation Element was returned");
+        }
+        else
+        {
+            Console.WriteLine("UI Automation Element was found!");
+            Console.WriteLine($"Element name: {browserElement.Current.Name}");
+            Console.WriteLine($"Control type: {browserElement.Current.ControlType.ProgrammaticName}");
+
+            AutomationElementCollection children = browserElement.FindAll(TreeScope.Children, Condition.TrueCondition);
+            AutomationElement rawFirstChild = TreeWalker.RawViewWalker.GetFirstChild(browserElement);
+
+            Console.WriteLine($"Found {children.Count} child elements!");
+
+            foreach (AutomationElement child in children)
+            {
+                Console.WriteLine($"Element name: {child.Current.Name}");
+                Console.WriteLine($"Control type: {child.Current.ControlType.ProgrammaticName}");   
+            }
+            if (rawFirstChild == null)
+            {
+                Console.WriteLine("NULL");
+            }
+            
+        }
+    }
+
+    Console.ReadLine();
+}
 
 
