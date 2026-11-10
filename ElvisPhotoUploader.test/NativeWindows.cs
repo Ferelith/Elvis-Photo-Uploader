@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -23,5 +24,8 @@ namespace ElvisPhotoUploader.test
         // Import the GetWindowText function from user32.dll
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "GetWindowTextW", ExactSpelling = true)]
         internal static extern int GetWindowText(IntPtr hWnd, StringBuilder stringBuilder, int maxCount);
+
+        [DllImport("oleacc.dll", ExactSpelling = true)]
+        internal static extern int AccessibleObjectFromWindow(IntPtr hWnd, uint objectId, ref Guid iid, out IntPtr accessibleObjectPointer);
     }
 }

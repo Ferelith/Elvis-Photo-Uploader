@@ -1,12 +1,15 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Automation;
 using ElvisPhotoUploader.test;
 
+const uint OBJID_CLIENT = 0xFFFFFFFC;
+Guid iidIAccessible = new Guid("618736E0-3C3D-11CF-810C-00AA00389B71");
 
 IntPtr matchedElvisWindowHandle = IntPtr.Zero;
 IntPtr uploadModalHandle = IntPtr.Zero;
 IntPtr ieServerHandle = IntPtr.Zero;   
+IntPtr msaaPointer = IntPtr.Zero;
 
 Process[] edgeProcess = Process.GetProcessesByName("msedge");
 
@@ -75,39 +78,33 @@ else
     }
     else
     {
-        Console.WriteLine($"Found the Internet Explorer_Server child window with handle (HWND): {ieServerHandle}");
-
-        AutomationElement browserElement = AutomationElement.FromHandle(ieServerHandle);
-
-        if (browserElement == null)
+        try
         {
-            Console.WriteLine("No UI Automation Element was returned");
+            int hresult = NativeWindows.AccessibleObjectFromWindow(ieServerHandle, OBJID_CLIENT, ref iidIAccessible, out msaaPointer);
+
+            if (hresult == 0 && msaaPointer != IntPtr.Zero)
+            {
+                Console.WriteLine("MSAA IAccessible Interface retrieved successfully!");
+                Console.WriteLine($"HRESULT: 0x{hresult:X8}");
+            }
+            else
+            {
+                Console.WriteLine("Failed to retrieve MSAA Interface");
+                Console.WriteLine($"HRESULT: 0x{hresult:X8}");
+            }    
         }
-        else
+        catch (Exception e)
         {
-            Console.WriteLine("UI Automation Element was found!");
-            Console.WriteLine($"Element name: {browserElement.Current.Name}");
-            Console.WriteLine($"Control type: {browserElement.Current.ControlType.ProgrammaticName}");
-
-            AutomationElementCollection children = browserElement.FindAll(TreeScope.Children, Condition.TrueCondition);
-            AutomationElement rawFirstChild = TreeWalker.RawViewWalker.GetFirstChild(browserElement);
-
-            Console.WriteLine($"Found {children.Count} child elements!");
-
-            foreach (AutomationElement child in children)
+            Console.WriteLine($"Failed to retrieve MSAA Interface due to an error: {e}");
+        }
+        finally
+        {
+            if (msaaPointer != IntPtr.Zero)
             {
-                Console.WriteLine($"Element name: {child.Current.Name}");
-                Console.WriteLine($"Control type: {child.Current.ControlType.ProgrammaticName}");   
+                Marshal.Release(msaaPointer);
             }
-            if (rawFirstChild == null)
-            {
-                Console.WriteLine("NULL");
-            }
-            
         }
     }
-
-    Console.ReadLine();
 }
-
+Console.ReadLine();
 
