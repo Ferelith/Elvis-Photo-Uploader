@@ -18,7 +18,7 @@ A C# project exploring a hotkey-driven helper for the ELVIS photo-upload interfa
 - [x] Identify Internet Explorer_Server child window
 - [x] Retrieve UI Automation element
 - [x] Investigate UI Automation child elements
-- [ ] Investigate MSAA accessibility
+- [x] Investigate MSAA accessibility
 - [ ] Establish access to HTML file inputs
 - [ ] Implement photo batching and resizing
 - [ ] Implement system tray and hotkeys
@@ -27,6 +27,8 @@ A C# project exploring a hotkey-driven helper for the ELVIS photo-upload interfa
 
 UI Automation successfully retrieves the browser
 pane, but child-element searches return no results.
+
+MSAA appears promising, but the original UI Automation issue remains unresolved.
 
 Further investigation is required to determine
 whether the HTML document can be accessed.
