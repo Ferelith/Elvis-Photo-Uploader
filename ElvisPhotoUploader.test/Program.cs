@@ -1,10 +1,15 @@
-﻿using System.Diagnostics;
+﻿using Accessibility;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using ElvisPhotoUploader.test;
 
 const uint OBJID_CLIENT = 0xFFFFFFFC;
-Guid iidIAccessible = new Guid("618736E0-3C3D-11CF-810C-00AA00389B71");
+
+const int CHILDID_SELF = 0;
+const int NAVDIR_FIRSTCHILD = 7;
+
+Guid iidIAccessible = typeof(IAccessible).GUID;
 
 IntPtr matchedElvisWindowHandle = IntPtr.Zero;
 IntPtr uploadModalHandle = IntPtr.Zero;
@@ -86,6 +91,32 @@ else
             {
                 Console.WriteLine("MSAA IAccessible Interface retrieved successfully!");
                 Console.WriteLine($"HRESULT: 0x{hresult:X8}");
+
+                IAccessible accessibleObject = (IAccessible) Marshal.GetObjectForIUnknown( msaaPointer );
+
+                Console.WriteLine($"Get type: {accessibleObject.GetType()}");
+
+                int childCount = accessibleObject.accChildCount;
+
+                Console.WriteLine($"Accessible children: {childCount}");
+                Console.WriteLine($"Accessible object name: {accessibleObject.accName[CHILDID_SELF]}");
+
+                object firstChild = accessibleObject.accNavigate(NAVDIR_FIRSTCHILD, CHILDID_SELF);
+
+                if (firstChild is IAccessible accessibleChild)
+                {
+                    Console.WriteLine($"Child name:{accessibleChild.accName[CHILDID_SELF]}");
+                    Console.WriteLine($"Child count: {accessibleChild.accChildCount}");
+                }
+                else if (firstChild is int childId)
+                {
+                    Console.WriteLine($"MSAA returned child ID {childId}");
+                }
+                else
+                {
+                    Console.WriteLine("No accessible child object was returned.");
+                }
+            
             }
             else
             {
