@@ -27,5 +27,8 @@ namespace ElvisPhotoUploader.test
 
         [DllImport("oleacc.dll", ExactSpelling = true)]
         internal static extern int AccessibleObjectFromWindow(IntPtr hWnd, uint objectId, ref Guid iid, out IntPtr accessibleObjectPointer);
+
+        [DllImport("oleacc.dll", ExactSpelling = true)]
+        internal static extern int AccessibleChildren (Accessibility.IAccessible paccContainer, int iChildStart, int cChildren, [In, Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] object[] rgvarChildren, out int pcObtained);
     }
 }

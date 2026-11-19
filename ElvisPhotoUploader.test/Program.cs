@@ -98,6 +98,13 @@ else
 
                 int childCount = accessibleObject.accChildCount;
 
+                if (childCount > 0)
+                {
+                    object[] children = new object[childCount];
+                    Console.WriteLine($"Allocated space for {children.Length} accessible children");
+                }
+                
+
                 Console.WriteLine($"Accessible children: {childCount}");
                 Console.WriteLine($"Accessible object name: {accessibleObject.accName[CHILDID_SELF]}");
 
@@ -133,6 +140,7 @@ else
             if (msaaPointer != IntPtr.Zero)
             {
                 Marshal.Release(msaaPointer);
+                msaaPointer = IntPtr.Zero;
             }
         }
     }
