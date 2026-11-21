@@ -1,3 +1,12 @@
 <Solution>
   <Project Path="ElvisPhotoUploader.test/ElvisPhotoUploader.csproj" />
+  <Folder Name="/Launcher/">
+    <File Path="Launcher/DesktopRuntime.cs" />
+    <File Path="Launcher/InstallerSignature.cs" />
+    <File Path="Launcher/RuntimeInstaller.cs" />
+    <File Path="Launcher/Program.cs" />
+  </Folder>
+  <Folder Name="/Publishing/">
+    <File Path="Publish-Desktop.ps1" />
+  </Folder>
 </Solution>
